@@ -42,7 +42,7 @@ function refresh_treemap() {
         .round(true);
 
     // Load data
-    d3.csv("donnée/data_task_100.csv", function (data_full) {
+    d3.csv(dataset, function (data_full) {
         // Convert our data structure into a tree structure
 
         // data complet
@@ -192,7 +192,7 @@ function refresh_barchart() {
         .rangeRound([height, 0]);
 
 //load data
-    d3.csv("donnée/data_task_100.csv", function (data_full) {
+    d3.csv(dataset, function (data_full) {
         console.log(data);
 // data complet
         data = [];
