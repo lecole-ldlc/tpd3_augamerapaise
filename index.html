@@ -5,16 +5,225 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/style.css" />
     <title>This is the index page</title>
 </head>
 <body>
+<section class="sectioncenter textcenter entresection">
+    Au Gamer Apaisé
+</section>
+
+<section class="sectioncenter">
+    <section class="ligne margesec">
+        <p>Dataset</p>
+    </section>
+    <section class="ligne marge">
+        <select id="dataset" onchange="refresh_treemap();">
+            <option value="donnée/data_task_10">10</option>
+            <option value="donnée/data_task_100">100</option>
+            <option value="donnée/data_task_1000">1000</option>
+            <option value="donnée/data_task_10000">10000</option>
+        </select>
+    </section>
+</section>
+<section class="sectioncenter entresection">
+    <section class="ligne margesec  ">
+        <p>User</p>
+    </section>
+    <section class="ligne marge">
+        <select id="user" onchange="refresh_treemap();">
+            <option value="All">All</option>
+            <option value="Mike">Mike</option>
+            <option value="Natasha">Natasha</option>
+            <option value="Joea">Joea</option>
+        </select>
+    </section>
+</section>
+
+<br>
+
 <section>
+    <svg width="960" height="400"></svg>
+    <div id="legend"></div>
+    <script>
+        //on change update users.
+        function refresh_treemap() {
+            var selected_user = $('#user').val();
+            var dataset = $('#dataset').val();
+            $("svg").html("");
+
+            // Initialize SVG
+            var svg = d3.select("svg"),
+                margin = {top: 20, right: 20, bottom: 30, left: 40},
+                width = +svg.attr("width") - margin.left - margin.right,
+                height = +svg.attr("height") - margin.top - margin.bottom,
+                g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            // Color scale for categories
+            var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+            // Prepare aggregation
+            var nest = d3.nest()
+                .key(function (d) {
+                    return d.priority;
+                }) // First we aggregate by prority
+                .key(function (d) {
+                    return d.status;
+                }) // Then by status
+                .rollup(function (leaves) {
+                    return {
+                        "total_cpt": leaves.length, // Compute the number of tasks in each groupe
+                        // Compute the total time associated with the tasks in this group
+                        "total_time": d3.sum(leaves, function (d) {
+                            return parseFloat(d.time);
+                        })
+                    }
+                });
+
+            // Prepare treemap
+            var treemap = d3.treemap()
+                .size([width, height])
+                .padding(1)
+                .round(true);
+
+            // Load data
+            d3.csv("donnée/data_task_100.csv", function (data_full) {
+                // Convert our data structure into a tree structure
+
+                // data complet
+                data = [];
+                data_full.forEach(function (d) {
+                    console.log(d.who);
+                    if (d.who == selected_user || selected_user == 'All') {
+                        data.push(d);
+                    }
+                });
+
+                // data is filterred
+                var root = d3.hierarchy({
+                    values: nest.entries(data)
+                }, function (d) {
+                    return d.values;
+                })
+                // This create a unique identifier of each leaf
+                    .eachBefore(function (d) {
+                        d.data.id = (d.parent ? d.parent.data.id + "." : "") + (d.data.key ? d.data.key : "");
+                    })
+                    // This is the value that will be used to draw the rectangles
+                    .sum(function (d) {
+                        if (d.value) {
+                            return d.value.total_cpt;
+                        }
+                    })
+                    // This is to display first the bigger rectangles
+                    .sort(function (a, b) {
+                        return b.value.total_cpt - a.value.total_cpt;
+                    });
+                //console.log(root)
+
+                // Do generate the treemap
+                treemap(root);
+
+                // Prepare each rectangle
+                var cell = g.selectAll("g")
+                // We do not draw the priority rectangles, only the leaves of the tree
+                    .data(root.leaves())
+                    .enter().append("g")
+                    // Use x0 and y0 generated by the treemap function
+                    .attr("transform", function (d) {
+                        return "translate(" + d.x0 + "," + d.y0 + ")";
+                    });
+
+                // Draw the rectangle
+                cell.append("rect")
+                    .attr("id", function (d) {
+                        return d.data.id;
+                    })
+                    .attr("width", function (d) {
+                        return d.x1 - d.x0;
+                    })
+                    .attr("height", function (d) {
+                        return d.y1 - d.y0;
+                    })
+                    // Use the parent attribute to set the color
+                    .attr("fill", function (d) {
+                        return color(d.parent.data.key);
+                    });
+
+                // Draw the text (use a clipping path to deal with long strings)
+                cell.append("clipPath")
+                    .attr("id", function (d) {
+                        return "clip-" + d.data.id;
+                    })
+                    .append("use")
+                    .attr("xlink:href", function (d) {
+                        return "#" + d.data.id;
+                    });
+                cell.append("text")
+                    .attr("clip-path", function (d) {
+                        return "url(#clip-" + d.data.id + ")";
+                    })
+                    .text(function (d) {
+                        return d.data.key;
+                    })
+                    .attr("x", 4)
+                    .attr("y", 10);
+
+                // Append a title (shown on mouse hover)
+                cell.append("title")
+                    .text(function (d) {
+                        return "Total task : " + d.data.value.total_cpt;
+                    });
+                var heightL = 100;
+                var svgLeg = d3.select("#legend").append("svg")
+                    .attr("width", width)
+                    .attr("height", heightL)
+
+                // Draw the legend
+                var legendRectSize = 18;
+                var legendSpacing = 4;
+                var legend = svg.selectAll('.legend')
+                    .data(color.domain())
+                    .enter()
+                    .append('g')
+                    .attr('class', 'legend')
+                    .attr('transform', function (d, i) {
+                        var offset = 20 * color.domain().length / 2;
+                        var horz = 30 + i * 100 + 10;
+                        var vert = height + legendRectSize + 10;
+                        //vert = 0;
+                        //horz = 0;
+                        return 'translate(' + horz + ',' + vert + ')';
+                    });
+
+                // These are the rectangles
+                legend.append('rect')
+                    .attr('width', legendRectSize)
+                    .attr('height', legendRectSize)
+                    .style('fill', color)
+                    .style('stroke', color);
+
+                // These are the texts
+                legend.append('text')
+                    .attr('x', legendRectSize + 5)
+                    .attr('y', 10)
+                    .text(function (d) {
+                        return d
+                    })
+            });
+        }
+
+        refresh_treemap();
+
+    </script>
 
 
 </section>
-C'est mon index.html
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
 </body>
 </html>

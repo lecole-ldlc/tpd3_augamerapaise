@@ -1,0 +1,50 @@
+
+.sectioncenter
+{
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+.entresection
+{
+    margin-bottom: 5em;
+}
+.textcenter
+{
+    text-align: center;
+}
+
+.ligne
+{
+    display: inline-block;
+}
+
+.marge
+{
+    margin-left: 3em;
+
+}
+.margesec
+{
+    margin-right: 3em;
+}
+
+.axis .domain {
+    display: none;
+}
+
+form {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+svg {
+    font: 10px sans-serif;
+}
+
+.legend {
+    font-size: 12px;
+}
+
+rect {
+    stroke-width: 2;
+}
