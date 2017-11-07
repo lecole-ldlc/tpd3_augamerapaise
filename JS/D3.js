@@ -439,8 +439,79 @@ function refresh_barchart2() {
     });
 }
 
+function refresh_surprise() {
+
+    var dataset = $('#dataset').val();
+    $("#surprise").html("");
+
+    var svg = d3.select("#surprise"),
+        margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom;
+
+    var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+        y = d3.scaleLinear().rangeRound([height, 0]),
+        z = d3.scaleOrdinal(d3.schemeCategory10);
+
+
+    var g = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    d3.csv(dataset, function(d) {
+        d.time = +d.time;
+        return d;
+    }, function(error, data) {
+        if (error) throw error;
+
+        console.log(data);
+
+        //____________________________________
+        data.sort(function(x,y){
+            return d3.ascending (x.time , y.time)
+        });
+
+        var total_time = 0;
+        data.forEach(function(d){
+            d.cum_time = +d.time + total_time;
+            total_time += +d.time;
+        });
+        //____________________________________
+
+        x.domain(data.map(function(d) { return d.id; }));
+        y.domain([0, d3.max(data, function(d) { return d.cum_time; })]);
+
+        g.append("g")
+            .attr("class", "axis axis--x")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+        g.append("g")
+            .attr("class", "axis axis--y")
+            .call(d3.axisLeft(y).ticks(20))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", "0.71em")
+            .attr("text-anchor", "end")
+
+        g.selectAll(".bar")
+            .data(data)
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("x", function(d) { return x(d.id); })
+            .attr("y", function(d) { return y(d.cum_time); })
+            .style("fill", function(d) { return z(d.priority); })
+            .attr("width", x.bandwidth())
+            .attr("height", function(d) { return height - y(d.cum_time); });
+
+
+
+    });
+
+
+}
 
 function refresh() {
+    refresh_surprise();
     refresh_barchart();
     refresh_barchart2();
     refresh_treemap();

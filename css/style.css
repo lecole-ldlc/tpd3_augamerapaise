@@ -54,3 +54,12 @@ rect {
     overflow: hidden;
 
 }
+
+.bar:hover {
+    display: time;
+}
+
+.axis--x path {
+    display: none;
+}
+
