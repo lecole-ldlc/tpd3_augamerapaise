@@ -129,21 +129,15 @@ function refresh_treemap() {
             .text(function (d) {
                 return "Total task : " + d.data.value.total_cpt;
             });
-        var heightL = 100;
-        var svgLeg = d3.select("#legend").append("svg")
-            .attr("width", width)
-            .attr("height", heightL)
 
         // Draw the legend
         var legendRectSize = 18;
-        var legendSpacing = 4;
         var legend = svg.selectAll('.legend')
             .data(color.domain())
             .enter()
             .append('g')
             .attr('class', 'legend')
             .attr('transform', function (d, i) {
-                var offset = 20 * color.domain().length / 2;
                 var horz = 30 + i * 100 + 10;
                 var vert = height + legendRectSize + 10;
                 //vert = 0;
