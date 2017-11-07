@@ -12,58 +12,67 @@
 <section class="sectioncenter textcenter entresection">
     Au Gamer Apaisé
 </section>
-
-<section class="sectioncenter">
-    <section class="ligne margesec">
-        <p>Dataset</p>
-    </section>
-    <section class="ligne marge">
-        <select id="dataset" onchange="refresh();">
-            <option value="donnée/data_task_10.csv">10</option>
-            <option value="donnée/data_task_100.csv">100</option>
-            <option value="donnée/data_task_1000.csv">1000</option>
-            <option value="donnée/data_task_10000.csv">10000</option>
-        </select>
-    </section>
-</section>
-<section class="sectioncenter entresection">
-    <section class="ligne margesec  ">
-        <p>User</p>
-    </section>
-    <section class="ligne marge">
-        <select id="user" onchange="refresh();">
-            <option value="All">All</option>
-            <option value="Mike">Mike</option>
-            <option value="Natasha">Natasha</option>
-            <option value="Joe">Joe</option>
-        </select>
-    </section>
-</section>
-
-<br/>
-
-<div class="aligne">
-    <section class="entresection ligne">
-        <p>Barchart statu</p>
-        <svg id="barchart" width="550" height="400"></svg>
-
-    </section>
-
-    <section class="entresection ligne barchart">
-
-        <p>Barchart priorité</p>
-        <svg id="barchart2" width="550" height="400"></svg>
-
-    </section>
-
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="col-md-2">
+            <p>Dataset</p>
+        </div>
+        <div class="col-md-2">
+            <select id="dataset" onchange="refresh();">
+                <option value="donnée/data_task_10.csv">10</option>
+                <option value="donnée/data_task_100.csv">100</option>
+                <option value="donnée/data_task_1000.csv">1000</option>
+                <option value="donnée/data_task_10000.csv">10000</option>
+            </select>
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div class="col-md-2">
+            <p>User</p>
+        </div>
+        <div class="col-md-2">
+            <select id="user" onchange="refresh();">
+                <option value="All">All</option>
+                <option value="Mike">Mike</option>
+                <option value="Natasha">Natasha</option>
+                <option value="Joe">Joe</option>
+            </select>
+        </div>
+    </div>
 </div>
 
-<section class="entresection">
 
-    <p>Treemap</p>
-    <svg id="treemap" width="960" height="400"></svg>
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <p>Barchart statu</p>
+            <svg id="barchart" width="550" height="400"></svg>
 
-</section>
+        </div>
+
+        <div class="col-6">
+
+            <p>Barchart priorité</p>
+            <svg id="barchart2" width="550" height="400"></svg>
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <p>Treemap</p>
+        <svg id="treemap" width="960" height="400"></svg>
+
+    </div>
+
+    <div class="row">
+
+        <p>Freechart</p>
+
+    </div>
+
+</div>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>

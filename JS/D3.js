@@ -445,4 +445,6 @@ function refresh() {
     refresh_treemap();
 }
 
-refresh();
+$(function(){
+    refresh();
+});
