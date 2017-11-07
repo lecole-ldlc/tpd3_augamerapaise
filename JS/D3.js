@@ -439,6 +439,7 @@ function refresh_barchart2() {
     });
 }
 
+
 function refresh() {
     refresh_barchart();
     refresh_barchart2();
