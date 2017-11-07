@@ -48,3 +48,9 @@ svg {
 rect {
     stroke-width: 2;
 }
+
+.aligne{
+
+    overflow: hidden;
+
+}
