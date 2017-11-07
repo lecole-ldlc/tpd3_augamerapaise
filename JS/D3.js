@@ -259,10 +259,190 @@ function refresh_barchart() {
     });
 }
 
-function refresh() {
-    refresh_barchart();
-    refresh_treemap();
+function refresh_barchart() {
+
+    var selected_user = $('#user').val();
+    var dataset = $('#dataset').val();
+    $("#barchart").html("");
+
+// Chart initialization
+    var svg = d3.select("#barchart"),
+        margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom,
+        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// X axis
+    var x = d3.scaleBand()
+        .rangeRound([0, width])
+        .paddingInner(0.1);
+
+// y axis
+    var y = d3.scaleLinear()
+        .rangeRound([height, 0]);
+
+//load data
+    d3.csv(dataset, function (data_full) {
+        console.log(data);
+// data complet
+        data = [];
+        data_full.forEach(function (d) {
+            console.log(d.who);
+            if (d.who == selected_user || selected_user == 'All') {
+                data.push(d);
+            }
+        });
+        // Group by status
+        var nested_data = d3.nest()
+            .key(function (d) {
+                return d.status;
+            })
+            .entries(data);
+
+        //console.log(nested_data);
+
+        // Color scale
+        var z = d3.scaleOrdinal(d3.schemeCategory10);
+
+        // Set domains of axes scales
+        x.domain(nested_data.map(function (d) {
+            return d.key;
+        }));
+        y.domain([0, d3.max(nested_data, function (d) {
+            return d.values.length;
+        })]);
+        z.domain(nested_data.map(function (d) {
+            return d.key;
+        }))
+
+        // Draw rect
+        g.selectAll("rect")
+            .data(nested_data)
+            .enter().append("rect")
+            .attr("x", function (d) {
+                return x(d.key);
+            })
+            .attr("y", function (d) {
+                return y(d.values.length);
+            })
+            .attr("height", function (d) {
+                return height - y(d.values.length);
+            })
+            .attr("width", x.bandwidth())
+            //.attr("fill", "red")
+            .attr("fill", function (d, i) {
+                return z(d.key);
+            })
+
+        // Draw x axis
+        g.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+        // Draw y axis
+        g.append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(y).ticks(null, "s"))
+
+
+    });
 }
 
+function refresh_barchart2() {
+    var selected_user = $('#user').val();
+    var dataset = $('#dataset').val();
+    $("#barchart2").html("");
+
+// Chart initialization
+    console.log(d3.select());
+    var svg = d3.select('#barchart2'),
+        margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom,
+        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// X axis
+    var x = d3.scaleBand()
+        .rangeRound([0, width])
+        .paddingInner(0.1);
+
+// y axis
+    var y = d3.scaleLinear()
+        .rangeRound([height, 0]);
+
+    //load data
+    d3.csv(dataset, function (data_full) {
+        console.log(data);
+
+        // data complet
+        data = [];
+        data_full.forEach(function (d) {
+            console.log(d.who);
+            if (d.who == selected_user || selected_user == 'All') {
+                data.push(d);
+            }
+        });
+
+// Group by priority
+        var nested_data = d3.nest()
+            .key(function (d) {
+                return d.priority;
+            })
+            .entries(data);
+
+//console.log(nested_data);
+
+// Color scale
+        var z = d3.scaleOrdinal(d3.schemeCategory10);
+
+// Set domains of axes scales
+        x.domain(nested_data.map(function (d) {
+            return d.key;
+        }));
+        y.domain([0, d3.max(nested_data, function (d) {
+            return d.values.length;
+        })]);
+        z.domain(nested_data.map(function (d) {
+            return d.key;
+        }))
+
+// Draw rect
+        g.selectAll("rect")
+            .data(nested_data)
+            .enter().append("rect")
+            .attr("x", function (d) {
+                return x(d.key);
+            })
+            .attr("y", function (d) {
+                return y(d.values.length);
+            })
+            .attr("height", function (d) {
+                return height - y(d.values.length);
+            })
+            .attr("width", x.bandwidth())
+            //.attr("fill", "red")
+            .attr("fill", function (d, i) {
+                return z(d.key);
+            })
+
+// Draw x axis
+        g.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+// Draw y axis
+        g.append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(y).ticks(null, "s"))
+    });
+}
+
+function refresh() {
+    refresh_barchart();
+    refresh_barchart2();
+    refresh_treemap();
+}
 
 refresh();
